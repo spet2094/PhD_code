@@ -37,7 +37,7 @@
 
 #######################
 # The following file types are code that should always be
-# included no matter where in the repository folder they are
+# INCLUDED no matter where in the repository folder they are
 # located unless you explicitly ignore that folder
 
 # Stata
@@ -77,19 +77,23 @@
 !/**/*.yaml
 
 ######################
-# Including some of the input data which corresponds to important parameters
+# INCLUDE some of the input data which corresponds to important parameters
 !/configs/*.txt
 !/configs/*.csv
-/dataForSophie/*
-
-
 !/data/configs/*.txt
 !/data/configs/*.csv
+
+#######################
+# EXCLUDE some of the files that are going to be large data files 
+/**/*.dta
+/**/*.xlsx
+/**/*.csv
+
 /data/verification/*.txt
 /data/verification/*.csv
 
 #######################
-# Include some additional file formats in any output folder. You might have
+# INCLUDE some additional file formats in any output folder. You might have
 # to change the name of the Output folder to whatever it is called in your
 # project, but we strongly recommend that you only include these files in
 # a subset of the folders where you are certain no private data is ever stored.
@@ -100,7 +104,7 @@
 !/**/Output/**/*.svg
 
 #######################
-# Include all the files with passwords or tokens here. All files named
+# INCLUDE all the files with passwords or tokens here. All files named
 # password or passwords are with this template ignored no matter which
 # format you are using. Additionally, all content in any folder called
 # password or passwords are also ignored. NOTE that your project might be
