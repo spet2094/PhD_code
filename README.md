@@ -1,3 +1,5 @@
+# About this PhD code repository
+
 This repository contains the code used to produce visualizations in each of the chapters of Sophie Ayling's PhD Thesis "People, Places and Movement: An Agent Based Modelling Approach to Infectious Disease Spread. The Case of Covid-19 in Zimbabwe". Supervised by Ass. Prof. Sarah Wise, Ass Prof. Guy Harling & Prof Hannah Fry and submitted on 30th April 2025. 
 This PhD was completed at the Centre for Advanced Spatial Analysis (CASA), The Bartlett Department, University College London. 
 Any requests for data to run the code can be made to ucfu056@ucl.ac.uk
