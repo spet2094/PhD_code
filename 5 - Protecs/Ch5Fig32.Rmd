@@ -1,0 +1,166 @@
+---
+title: "occ_mapping"
+author: "Sophie"
+date: "2023-12-27"
+output: html_document
+---
+
+
+
+```{r}
+
+library(sf)
+library(here)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+
+```
+
+```{r}
+# input paths
+data_input <- "/Users/sophieayling/Library/CloudStorage/GoogleDrive-sophie2ayling@gmail.com/My Drive/PhD/06_Data and Modelling/thesis_data/population/IPUMS_2012"
+
+map_input <-"/Users/sophieayling/Library/CloudStorage/GoogleDrive-sophie2ayling@gmail.com/My Drive/PhD/06_Data and Modelling/thesis_data/shapefiles/60_districts/"
+
+map_output <-"/Users/sophieayling/Library/CloudStorage/GoogleDrive-sophie2ayling@gmail.com/My Drive/PhD/06_Data and Modelling/map_output"
+
+```
+
+
+```{r}
+
+#read in census occupational data by district
+
+census_occs <- read_excel(file.path(data_input,"occ_by_dist_perc.xls"))
+
+census_occs <- census_occs %>%
+  rename(ID_2 =district_n, "Industry workers" ="Indusrtry Workers")
+
+census_occs_n <- read_excel(file.path(data_input,"occ_by_dist_n.xls"))
+
+census_occs_n <- census_occs_n %>%
+  rename(ID_2 =district_n, "Industry workers" ="Indusrtry Workers")
+
+
+```
+
+
+```{r}
+
+# read in the district level shape file for zim EPSG:20936, ID2 is district
+
+zim_60d <- st_read(file.path(map_input, "ZWE_adm2.shp")) %>%
+  st_transform(., 20936) 
+
+plot(zim_60d["ID_2"])
+
+```
+
+
+```{r}
+# join the occupational data with the shapefile based on the district number using merge function (because that's join by attributes)
+
+merged_data <- merge(zim_60d, census_occs, by = "ID_2")
+merged_data_n <- merge(zim_60d, census_occs_n, by="ID_2")
+```
+
+```{r}
+ #now can plot the distribution of each of the occupations and see how they vary across the country 
+
+plot(merged_data["Office workers"])
+
+# Create a list of variables (for each occupation)
+variables <- c("Current Students", "Service Workers", "Agriculture Workers", "Industry workers", "Not working, inactive, not in universe", "Homemakers/Housework")
+
+# Create a list to store the ggplot objects
+plots <- list()
+
+# Create a quadrant of maps
+for (i in seq_along(variables)) {
+  # Create a ggplot for each variable
+  plot <- ggplot() +
+    geom_sf(data = merged_data, aes(fill = !!sym(variables[i]))) +
+    scale_fill_viridis_c(option = "C", direction = -1)  +  # Choose a suitable color scale
+    ggtitle(variables[i]) +
+    labs(fill = "% of population") +  # Rename the legend
+    theme_void() +
+    theme(
+      plot.title = element_text(margin = margin(b = 10)),  # Adjust title margin
+      legend.position = "right"  # Move legend to the right
+    )
+
+  # Add the ggplot object to the list
+  plots[[i]] <- plot
+}
+
+# Arrange the plots in a quadrant
+final_plot <- ggarrange(plotlist = plots, ncol = 2, nrow = 3, common.legend=TRUE)+
+  theme(plot.margin = margin(0.5, 0.5, 1, 0.5, "cm"))  # Adjust margin between rows
+
+# Increase the size of individual plots
+final_plot <- final_plot + theme(
+  plot.margin = margin(0.5, 0.5, 1, 0.5, "cm"),  # Adjust overall plot margin
+  plot.background = element_rect(fill = "white", color = NA),
+  panel.background = element_rect(fill = "white", color = NA)
+)
+
+# Display the final plot
+print(final_plot)
+
+# Export the final plot as a PNG with DPI set to 300
+ggsave(filename =file.path(map_output, "occupations_by_dist_perc.png"), final_plot, dpi = 300, width = 10, height = 8)
+
+```
+
+
+```{r}
+# Do the same but with the absolute number rather than percentage 
+#now can plot the distribution of each of the occupations and see how they vary across the country 
+
+# Create a list of variables (for each occupation)
+variables <- c("Current Students", "Service Workers", "Agriculture Workers", "Industry workers", "Not working, inactive, not in universe", "Homemakers/Housework")
+
+# Create a list to store the ggplot objects
+plots <- list()
+
+# Create a quadrant of maps
+for (i in seq_along(variables)) {
+  # Create a ggplot for each variable
+  plot <- ggplot() +
+    geom_sf(data = merged_data_n, aes(fill = !!sym(variables[i]))) +
+    scale_fill_viridis_c(option = "C", direction = -1)  +  # Choose a suitable color scale
+    ggtitle(variables[i]) +
+    labs(fill = "n of population") +  # Rename the legend
+    theme_void() +
+    theme(
+      plot.title = element_text(margin = margin(b = 10)),  # Adjust title margin
+      legend.position = "right"  # Move legend to the right
+    )
+
+  # Add the ggplot object to the list
+  plots[[i]] <- plot
+}
+
+# Arrange the plots in a quadrant
+final_plot <- ggarrange(plotlist = plots, ncol = 2, nrow = 3, common.legend=TRUE)+
+  theme(plot.margin = margin(0.5, 0.5, 1, 0.5, "cm"))  # Adjust margin between rows
+
+# Increase the size of individual plots
+final_plot <- final_plot + theme(
+  plot.margin = margin(0.5, 0.5, 1, 0.5, "cm"),  # Adjust overall plot margin
+  plot.background = element_rect(fill = "white", color = NA),
+  panel.background = element_rect(fill = "white", color = NA)
+)
+
+# Display the final plot
+print(final_plot)
+
+# Export the final plot as a PNG with DPI set to 300
+ggsave("occupations_by_dist_n.png", final_plot, dpi = 300, width = 10, height = 8)
+
+```
+
+
+
